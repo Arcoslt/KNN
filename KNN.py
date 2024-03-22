@@ -27,7 +27,9 @@ def Knn_tets(df, k):    # Separate features and target
         most_common_label = nearest_labels.mode()[0]
         predictions.append(most_common_label)
     
-    print((predictions == y_test).mean()*100)
+    print("Matriz de confusão:")
+    print(confusion_matrix(y_test, predictions))
+    print("Acurácia:",((predictions == y_test).mean()*100),"%")
 
     return predictions
 
