@@ -25,8 +25,9 @@ def Knn_tets(df):    # Separate features and target
     X = df.drop(columns=['A_id', 'Quality'])  # Features
     y = df['Quality']  # Target
 
-    # Split data into train and test sets (you might want to use a more sophisticated method for this)
-    train_size = int(0.8 * len(df))
+    #Dividindo o data set em 2, com 70% para o treinamento
+    # e 30% de treinamento
+    train_size = int((70/100) * len(df))
     X_train, X_test = X[:train_size], X[train_size:]
     y_train, y_test = y[:train_size], y[train_size:]
 
