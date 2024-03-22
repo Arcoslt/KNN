@@ -1,29 +1,17 @@
 import pandas as pd
 import numpy as np
+from sklearn.metrics import confusion_matrix
 
+def Knn_tets(df, k):    # Separate features and target
+    
+    #Atritutos, é a parte do data sem as colunas A_id e Quality 
+    X = df.drop(columns=['A_id', 'Quality'])
+    
+    #Objetivo, se a maçã é boa ou ruim
+    y = df['Quality']
 
-class KNN:
-    def __init__(self, k):
-        self.k = k
-
-    def fit(self, X, y):
-        self.X_train = X
-        self.y_train = y
-
-    def predict(self, X_test):
-        predictions = []
-        for i in range(len(X_test)):
-            distances = np.sqrt(np.sum((self.X_train - X_test.iloc[i])**2, axis=1))
-            nearest_neighbors = distances.argsort()[:self.k]
-            nearest_labels = self.y_train.iloc[nearest_neighbors]
-            most_common_label = nearest_labels.mode()[0]
-            predictions.append(most_common_label)
-        return predictions
-
-def Knn_tets(df):    # Separate features and target
-    # Prepare data
-    X = df.drop(columns=['A_id', 'Quality'])  # Features
-    y = df['Quality']  # Target
+    #Normalidanzo o dataset
+    X = (X - X.min()) / (X.max() - X.min())
 
     #Dividindo o data set em 2, com 70% para o treinamento
     # e 30% de treinamento
@@ -31,17 +19,18 @@ def Knn_tets(df):    # Separate features and target
     X_train, X_test = X[:train_size], X[train_size:]
     y_train, y_test = y[:train_size], y[train_size:]
 
-    # Instantiate and train the KNN model
-    k = 5  # You can adjust k as needed
-    model = KNN(k)
-    model.fit(X_train, y_train)
+    predictions = []
+    for i in range(len(X_test)):
+        distances = np.sqrt(np.sum((X_train - X_test.iloc[i])**2, axis=1))
+        nearest_neighbors = distances.argsort()[:k]
+        nearest_labels = y_train.iloc[nearest_neighbors]
+        most_common_label = nearest_labels.mode()[0]
+        predictions.append(most_common_label)
+    
+    print((predictions == y_test).mean()*100)
 
-    # Make predictions
-    predictions = model.predict(X_test)
+    return predictions
 
-    # Evaluate model
-    accuracy = (predictions == y_test).mean()
-    print("Accuracy:", accuracy)
 
 
 def read_csv_file(file_path):
@@ -49,9 +38,9 @@ def read_csv_file(file_path):
         data = pd.read_csv(file_path)
         return data
     except FileNotFoundError:
-        print("File not found.")
+        print("Arquivo não encontrado.")
     except Exception as e:
-        print("An error occurred:", e)
+        print("Error: ", e)
         return None
 
 def treat_DataSet(df):
@@ -82,7 +71,7 @@ def main():
     
     if apples is not None:
         apples = treat_DataSet(apples)
-        Knn_tets(apples)
+        Knn_tets(apples, k=5)
 
 if __name__ == "__main__":
     main()
