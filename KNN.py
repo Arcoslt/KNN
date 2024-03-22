@@ -1,5 +1,7 @@
+#pip install pandas
 import pandas as pd
 import numpy as np
+#pip install scikit-learn
 from sklearn.metrics import confusion_matrix
 
 def Knn_tets(df, k):    # Separate features and target
@@ -10,8 +12,11 @@ def Knn_tets(df, k):    # Separate features and target
     #Objetivo, se a maçã é boa ou ruim
     y = df['Quality']
 
-    #Normalidanzo o dataset
+    #Normalizando o dataset
     X = (X - X.min()) / (X.max() - X.min())
+    Normal = X.join(y)
+    print("MATRIZ NORMALIZADA:")
+    print(Normal)
 
     #Dividindo o data set em 2, com 70% para o treinamento
     # e 30% de treinamento
@@ -34,7 +39,7 @@ def Knn_tets(df, k):    # Separate features and target
     return predictions
 
 
-
+#Leitura do arquivo csv, o que contém o data set
 def read_csv_file(file_path):
     try:
         data = pd.read_csv(file_path)
@@ -70,10 +75,11 @@ def treat_DataSet(df):
 def main():
     file_path = 'apple_quality.csv' 
     apples = read_csv_file(file_path)
+    k = 5
     
     if apples is not None:
         apples = treat_DataSet(apples)
-        Knn_tets(apples, k=5)
+        Knn_tets(apples, k)
 
 if __name__ == "__main__":
     main()
