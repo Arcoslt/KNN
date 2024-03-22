@@ -10,31 +10,46 @@ def Knn_tets(df, k):    # Separate features and target
     X = df.drop(columns=['A_id', 'Quality'])
     
     #Objetivo, se a maçã é boa ou ruim
-    y = df['Quality']
+    Y = df['Quality']
 
     #Normalizando o dataset
     X = (X - X.min()) / (X.max() - X.min())
-    Normal = X.join(y)
+    Normal = X.join(Y)
     print("MATRIZ NORMALIZADA:")
     print(Normal)
 
     #Dividindo o data set em 2, com 70% para o treinamento
     # e 30% de treinamento
+    #Obs: o conjunto de dados é de 4000 linhas
     train_size = int((70/100) * len(df))
+                    #0 a train size / train size ate 4000
     X_train, X_test = X[:train_size], X[train_size:]
-    y_train, y_test = y[:train_size], y[train_size:]
+    Y_train, Y_test = Y[:train_size], Y[train_size:]
 
     predictions = []
     for i in range(len(X_test)):
         distances = np.sqrt(np.sum((X_train - X_test.iloc[i])**2, axis=1))
+        #Organiza do o Array Distance:argsort()
+        #Retorna apenas os primeiros k elementos do rara:[:k]
         nearest_neighbors = distances.argsort()[:k]
-        nearest_labels = y_train.iloc[nearest_neighbors]
+        #Seleciona as linhas do conjunto de rótulos de treinamento 
+        #correspondentes aos índices dos vizinhos mais próximos 
+        #calculados anteriormente
+        nearest_labels = Y_train.iloc[nearest_neighbors]
+        #Retorna os valores mais comuns no conjunto de dados
+        #Adicionando [0], estamos acessando o primeiro elemento,
+        #que é o valor mais comum.
         most_common_label = nearest_labels.mode()[0]
+        #Append o mais comun, 0 ou 1, que é
+        #a predição se a maçã é boa ou ruim
         predictions.append(most_common_label)
     
     print("Matriz de confusão:")
-    print(confusion_matrix(y_test, predictions))
-    print("Acurácia:",((predictions == y_test).mean()*100),"%")
+    #Usando o sklearn para caulcular a matriz de confusão
+    print(confusion_matrix(Y_test, predictions))
+    #Se a predição for igual ao Y_test
+    #.mean() calcula a proporção dos iguais
+    print("Acurácia:",((predictions == Y_test).mean()*100),"%")
 
     return predictions
 
