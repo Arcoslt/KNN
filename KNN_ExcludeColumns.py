@@ -1,7 +1,6 @@
 import pandas as pd
 import numpy as np
 from sklearn.metrics import confusion_matrix
-from sklearn.metrics import mean_squared_error
 import matplotlib.pyplot as plt
 import seaborn as sns
 import os
@@ -12,7 +11,7 @@ def call_knn_tests_with_column_exclusion(df, k):
     results = []
     for column in columns_to_exclude:
         print("\nExcluindo a coluna:", column)
-        predictions, conf_matrix, accuracy, precision, recall, specificity = knn_tests(df.drop(columns=[column]), k)
+        conf_matrix, accuracy, precision, recall, specificity = knn_tests(df.drop(columns=[column]), k)
         results.append((column, conf_matrix, accuracy, precision, recall, specificity))
 
     with open('knn_results.txt', 'w') as file:
@@ -75,7 +74,7 @@ def knn_tests(df, k):
     precision = conf_matrix[0][0] / (conf_matrix[0][0] + conf_matrix[1][0])
     recall = conf_matrix[0][0] / (conf_matrix[0][0] + conf_matrix[0][1])
     specificity = conf_matrix[1][1] / (conf_matrix[1][1] + conf_matrix[1][0])
-
+    
     print(conf_matrix)
     print("Accuracy:", ((predictions == y_test).mean() * 100), "%")
     print("Precision: ",precision*100, " %")
@@ -83,7 +82,7 @@ def knn_tests(df, k):
     print("Specificity: ", specificity*100, " %")
 
     # Retorna as previsões feitas pelo modelo.
-    return predictions, conf_matrix, accuracy, precision, recall, specificity
+    return conf_matrix, accuracy, precision, recall, specificity
 
 # Lê um arquivo CSV especificado por file_path usando a biblioteca pandas.
 def read_csv_file(file_path):
@@ -124,7 +123,7 @@ def main():
 
     if apples is not None:
         apples = treat_dataset(apples)
-        predictions, conf_matrix, accuracy, precision, recall, specificity = knn_tests(apples, k)
+        conf_matrix, accuracy, precision, recall, specificity = knn_tests(apples, k)
         plot_conf_matrix(conf_matrix)
         call_knn_tests_with_column_exclusion(apples, k)
 
