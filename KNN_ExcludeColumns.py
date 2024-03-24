@@ -1,33 +1,41 @@
-import pandas as pd
-import numpy as np
-from sklearn.metrics import confusion_matrix
-import matplotlib.pyplot as plt
-import seaborn as sns
 import os
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import seaborn as sns
+from sklearn.metrics import confusion_matrix
+
 
 def call_knn_tests_with_column_exclusion(df, k):
-    columns_to_exclude = df.columns.difference(['A_id', 'Quality'])  # Obtém todas as colunas exceto 'A_id' e 'Quality'
+# Obtém todas as colunas e remove as colunas 'A_id' e 'Quality' da lista.
+    columns_to_exclude = df.columns.difference(['A_id', 'Quality'])
 
     results = []
+# Inicia um loop que itera sobre cada coluna a ser excluída do DataFrame.
     for column in columns_to_exclude:
         print("\nExcluindo a coluna:", column)
-        conf_matrix, accuracy, precision, recall, specificity = knn_tests(df.drop(columns=[column]), k)
+# Chama uma função knn_tests que executa os testes de k-NN no DataFrame com a coluna atualmente excluída.
+        predictions, conf_matrix, accuracy, precision, recall, specificity = knn_tests(df.drop(columns=[column]), k)
+# Adiciona os resultados dos testes à lista results, incluindo o nome da coluna excluída,
+# a matriz de confusão e as métricas de desempenho.
         results.append((column, conf_matrix, accuracy, precision, recall, specificity))
-
+#Abre um arquivo de texto chamado 'knn_results.txt' em modo de escrita e escreve as informações a seguir para
+# cada iteração..
     with open('knn_results.txt', 'w') as file:
         for column, conf_matrix, accuracy, precision, recall, specificity in results:
-            file.write(f"Título: coluna removida ({column}) \n")
-            file.write("Conf matrix:\n")
+            file.write(f"Column removed: ({column}) \n")
+            file.write("Confusion matrix:\n")
             for row in conf_matrix:
                 file.write(f"{row}\n")
-            file.write(f"Acurácia: {accuracy*100} %\n")
-            file.write(f"Precisão: {precision*100} %\n")
-            file.write(f"Recall: {recall*100} %\n")
-            file.write(f"Especificidade: {specificity*100} %\n")
+            file.write(f"Accuracy: {accuracy * 100} %\n")
+            file.write(f"Precision: {precision * 100} %\n")
+            file.write(f"Recall: {recall * 100} %\n")
+            file.write(f"Specificity: {specificity * 100} %\n")
             file.write("\n")
 
-    # Abrir o arquivo com o aplicativo padrão do sistema operacional
-    os.system('start knn_results.txt')
+#Abre o arquivo 'knn_results.txt' usando o aplicativo padrão do sistema operacional.
+    os.system('open knn_results.txt')
+
 
 def plot_conf_matrix(conf_matrix):
     # Plota a matriz de confusão
@@ -51,38 +59,65 @@ def knn_tests(df, k):
     print("normalized matrix:")
     print(normal)
 
-    # Divide o conjunto de dados em conjuntos de treinamento e teste.
+    # Calcula o tamanho do conjunto de treinamento e divide o conjunto de dados em conjuntos de treinamento e teste.
+    #O resultado é convertido para um número inteiro usando a função int().
+
     train_size = int((70 / 100) * len(df))
     x_train, x_test = x[:train_size], x[train_size:]
     y_train, y_test = y[:train_size], y[train_size:]
 
-    # Implementa o algoritmo k-NN para fazer previsões no conjunto de teste.
+    # Implementa o algoritmo k-NN para fazer previsões no conjunto de teste. Essas previsões são baseadas nos
+    # rótulos dos k vizinhos mais próximos para cada amostra no conjunto de teste, utilizando a maioria de
+    # votos para determinar a classe prevista.
     predictions = []
+    #Inicia um loop que percorre cada amostra no conjunto de teste.
     for i in range(len(x_test)):
+    #Calcula as distâncias entre a amostra atual do conjunto de teste e todas as amostras no conjunto de treinamento.
+    #Isso é feito usando a distância euclidiana, que é a raiz quadrada da soma dos quadrados das diferenças entre
+    # os atributos de cada amostra.
         distances = np.sqrt(np.sum((x_train - x_test.iloc[i]) ** 2, axis=1))
+    #Identifica os índices das k amostras mais próximas no conjunto de treinamento, com base nas menores
+    # distâncias calculadas. Isso é feito ordenando as distâncias e selecionando os índices dos k primeiros elementos
+    # do array ordenado.
         nearest_neighbors = distances.argsort()[:k]
+    #Obtém os rótulos correspondentes às amostras mais próximas encontradas no conjunto de treinamento.
         nearest_labels = y_train.iloc[nearest_neighbors]
+    #Determina o rótulo mais comum entre os vizinhos mais próximos. Isso é feito calculando a moda dos rótulos.
         most_common_label = nearest_labels.mode()[0]
+    #Adiciona a previsão (rótulo mais comum) para a amostra atual à lista de previsões.
         predictions.append(most_common_label)
 
     # Calcula a matriz de confusão e a precisão da classificação.
     print("Confusion matrix:")
     conf_matrix = confusion_matrix(y_test, predictions)
 
-    # Calculo dos resultados obtidos 
-    accuracy = (conf_matrix[0][0] + conf_matrix[1][1]) / (conf_matrix[0][0] + conf_matrix[1][1] + conf_matrix[1][0] + conf_matrix[0][1])
+    # Calcula os resultados obtidos para cada métrica.
+    # Calcula a precisão do modelo, que é a proporção de todas as previsões corretas
+    # (verdadeiros positivos e verdadeiros negativos) em relação ao número total de amostras.
+    accuracy = (conf_matrix[0][0] + conf_matrix[1][1]) / (
+                conf_matrix[0][0] + conf_matrix[1][1] + conf_matrix[1][0] + conf_matrix[0][1])
+    #Calcula a precisão, que é a proporção de verdadeiros positivos em relação ao total de previsões positivas
+    # (verdadeiros positivos mais falsos positivos). Isso mede a capacidade do modelo de classificar
+    # corretamente as amostras como positivas.
     precision = conf_matrix[0][0] / (conf_matrix[0][0] + conf_matrix[1][0])
+    #Calcula a sensibilidade, também conhecida como recall, que é a proporção de verdadeiros positivos em relação ao
+    # total de amostras verdadeiramente positivas (verdadeiros positivos mais falsos negativos).
+    # Isso mede a capacidade do modelo de identificar corretamente todas as amostras positivas.
     recall = conf_matrix[0][0] / (conf_matrix[0][0] + conf_matrix[0][1])
+    #Calcula a especificidade, que é a proporção de verdadeiros negativos em relação ao total de amostras
+    # verdadeiramente negativas (verdadeiros negativos mais falsos positivos). Isso mede a capacidade do modelo
+    # de identificar corretamente todas as amostras negativas.
     specificity = conf_matrix[1][1] / (conf_matrix[1][1] + conf_matrix[1][0])
-    
+
     print(conf_matrix)
     print("Accuracy:", ((predictions == y_test).mean() * 100), "%")
-    print("Precision: ",precision*100, " %")
-    print("Recall: ", recall*100, " %")
-    print("Specificity: ", specificity*100, " %")
+    print("Precision: ", precision * 100, " %")
+    print("Recall: ", recall * 100, " %")
+    print("Specificity: ", specificity * 100, " %")
 
     # Retorna as previsões feitas pelo modelo.
-    return conf_matrix, accuracy, precision, recall, specificity
+    return predictions, conf_matrix, accuracy, precision, recall, specificity
+
 
 # Lê um arquivo CSV especificado por file_path usando a biblioteca pandas.
 def read_csv_file(file_path):
@@ -119,11 +154,11 @@ def treat_dataset(df):
 def main():
     file_path = 'apple_quality.csv'
     apples = read_csv_file(file_path)
-    k = 5
+    k = 3
 
     if apples is not None:
         apples = treat_dataset(apples)
-        conf_matrix, accuracy, precision, recall, specificity = knn_tests(apples, k)
+        predictions, conf_matrix, accuracy, precision, recall, specificity = knn_tests(apples, k)
         plot_conf_matrix(conf_matrix)
         call_knn_tests_with_column_exclusion(apples, k)
 
