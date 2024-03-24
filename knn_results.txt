@@ -1,0 +1,63 @@
+Título: coluna removida (Acidity) 
+Conf matrix:
+[504  92]
+[ 74 530]
+Acurácia: 86.16666666666667 %
+Precisão: 87.19723183391004 %
+Recall: 84.56375838926175 %
+Especificidade: 87.74834437086093 %
+
+Título: coluna removida (Crunchiness) 
+Conf matrix:
+[511  85]
+[ 67 537]
+Acurácia: 87.33333333333333 %
+Precisão: 88.4083044982699 %
+Recall: 85.73825503355704 %
+Especificidade: 88.90728476821192 %
+
+Título: coluna removida (Juiciness) 
+Conf matrix:
+[519  77]
+[ 74 530]
+Acurácia: 87.41666666666667 %
+Precisão: 87.52107925801012 %
+Recall: 87.08053691275168 %
+Especificidade: 87.74834437086093 %
+
+Título: coluna removida (Ripeness) 
+Conf matrix:
+[502  94]
+[106 498]
+Acurácia: 83.33333333333334 %
+Precisão: 82.56578947368422 %
+Recall: 84.22818791946308 %
+Especificidade: 82.45033112582782 %
+
+Título: coluna removida (Size) 
+Conf matrix:
+[502  94]
+[ 90 514]
+Acurácia: 84.66666666666667 %
+Precisão: 84.7972972972973 %
+Recall: 84.22818791946308 %
+Especificidade: 85.09933774834437 %
+
+Título: coluna removida (Sweetness) 
+Conf matrix:
+[491 105]
+[ 88 516]
+Acurácia: 83.91666666666666 %
+Precisão: 84.80138169257341 %
+Recall: 82.38255033557047 %
+Especificidade: 85.43046357615894 %
+
+Título: coluna removida (Weight) 
+Conf matrix:
+[503  93]
+[ 71 533]
+Acurácia: 86.33333333333333 %
+Precisão: 87.63066202090593 %
+Recall: 84.39597315436241 %
+Especificidade: 88.24503311258279 %
+
